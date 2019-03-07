@@ -1,9 +1,14 @@
 # Golang CircleCI 2.0 configuration file
 #
-# Check https://circleci.com/docs/2.0/language-go/ for more details
+# Settings via the UI:
+# - Configured GOOGLE_CLOUD_PROJECT environment variable
+# - Configured SERVICE_ACCOUNT_KEY with the key contents
+# - Only building PRs
+# - Auto-canceling redundant builds
+#
 version: 2
 jobs:
-  build:
+  test:
     docker:
       # The workspace for the CI build, based on go 1.12.
       # Alternative: Circle doesn't know we're using Go,
@@ -11,10 +16,65 @@ jobs:
       # in the build is our CI result.
       - image: circleci/golang:1.12
 
+    environment:
+      GO111MODULE: "on"
+
     working_directory: /go/src/github.com/grayside/test
     steps:
       - checkout
       # Lint.
       - run: go fmt .
-      # Run tests.
-      # - run: go test -v ./...
+      # Test.
+      - run: go test -v .
+
+  # https://vsupalov.com/build-docker-image-with-circle-ci-2-push-to-google-container-registry/
+  build-and-push:
+    # Has docker and gcloud out-of-box. This is a more custom type
+    # which will have more expensive pricing.
+    # @todo switch to a gcloud + docker image.
+    type: machine
+    docker:
+      # The workspace for the CI build, based on go 1.12.
+      # Alternative: Circle doesn't know we're using Go,
+      # instead we build a test.Dockerfile and whatever happens
+      # in the build is our CI result.
+      - image: circleci/golang:1.12
+
+    environment:
+      GO111MODULE: "on"
+
+    working_directory: /go/src/github.com/grayside/test
+    steps:
+      - checkout
+      # Build
+      - run:
+        name: Build Docker Image
+        command: |
+          export BRANCH_DOCKER_TAG=$(echo $CIRCLE_BRANCH | tr / -)
+          docker build \
+            --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_SHA1 \
+            --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$BRANCH_DOCKER_TAG \
+            .
+      - run:
+        name: Prepare GCP Service Account Credentials
+        command: |
+          echo ${SERVICE_ACCOUNT_KEY} > ${HOME}/sa-key.json
+          gcloud auth activate-service-account --key-file ${HOME}/sa-key.json
+          gcloud --quiet config set project $GOOGLE_CLOUD_PROJECT
+      - run:
+        name: Publish Docker Image
+        when: on_success
+        command: gcloud docker -- push \
+          gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_SHA1 \
+          gcr.io/$GOOGLE_CLOUD_PROJECT/test:$BRANCH_DOCKER_TAG
+
+# https://circleci.com/docs/2.0/workflows/
+workflows:
+  version: 2
+  test-build-and-push:
+    jobs:
+      - test
+      - build-and-publish:
+          requires:
+            - test
+      
