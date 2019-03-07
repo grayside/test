@@ -1,0 +1,20 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      # The workspace for the CI build, based on go 1.12.
+      # Alternative: Circle doesn't know we're using Go,
+      # instead we build a test.Dockerfile and whatever happens
+      # in the build is our CI result.
+      - image: circleci/golang:1.12
+
+    working_directory: /go/src/github.com/grayside/test
+    steps:
+      - checkout
+      # Lint.
+      - run: go fmt .
+      # Run tests.
+      # - run: go test -v ./...
