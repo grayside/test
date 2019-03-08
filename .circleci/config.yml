@@ -47,11 +47,12 @@ jobs:
   # https://github.com/hadolint/hadolint
   docker-lint:
     docker:
-      - image: hadolint/hadolint
+      # Any container that can run docker, really.
+      - image: circleci/golang:1.12
     working_directory: /go/src/github.com/grayside/test
     steps:
       - checkout
-      - run: hadolint Dockerfile
+      - run: docker run --rm -i hadolint/hadolint < Dockerfile
 
   # https://vsupalov.com/build-docker-image-with-circle-ci-2-push-to-google-container-registry/
   build-and-push:
