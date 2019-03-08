@@ -6,6 +6,9 @@
 # - Only building PRs
 # - Auto-canceling redundant builds
 #
+# @todo consider adding caching to test process,
+# many go commands retrieve dependencies.
+#
 version: 2
 jobs:
   test:
@@ -18,14 +21,27 @@ jobs:
 
     environment:
       GO111MODULE: "on"
+      TEST_RESULTS: "/tmp/test-results"
 
     working_directory: /go/src/github.com/grayside/test
     steps:
       - checkout
-      # Lint.
-      - run: go fmt .
-      # Test.
-      - run: go test -v .
+      - run:
+        name: Lint
+        command: go fmt .
+      - run:
+          name: Test
+          command: |
+            go get github.com/jstemmer/go-junit-report
+            trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
+            go test -v . | tee ${TEST_RESULTS}/go-test.out
+      # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+      - store_artifacts:
+          path: ${TEST_RESULTS}
+          destination: raw-test-output
+      # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+      - store_test_results:
+          path: ${TEST_RESULTS}
 
   # https://vsupalov.com/build-docker-image-with-circle-ci-2-push-to-google-container-registry/
   build-and-push:
