@@ -34,7 +34,7 @@ jobs:
       # Alternative: Circle doesn't know we're using Go,
       # instead we build a test.Dockerfile and whatever happens
       # in the build is our CI result.
-      - image: circleci/golang:1.12
+      - image: google/cloud-sdk
 
     environment:
       GO111MODULE: "on"
