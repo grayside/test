@@ -49,24 +49,24 @@ jobs:
       # Build
       - run:
         name: Build Docker Image
-        command: |
-          export BRANCH_DOCKER_TAG=$(echo $CIRCLE_BRANCH | tr / -)
-          docker build \
-          --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_SHA1 \
-          --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$BRANCH_DOCKER_TAG \
+        command: <
+          export BRANCH_DOCKER_TAG=$(echo $CIRCLE_BRANCH | tr / -);
+          docker build
+          --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_SHA1
+          --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$BRANCH_DOCKER_TAG
           .
       - run:
         name: Prepare GCP Service Account Credentials
-        command: |
+        command: <
           echo ${SERVICE_ACCOUNT_KEY} > ${HOME}/sa-key.json
           gcloud auth activate-service-account --key-file ${HOME}/sa-key.json
           gcloud --quiet config set project $GOOGLE_CLOUD_PROJECT
       - run:
         name: Publish Docker Image
         when: on_success
-        command: |
-          gcloud docker -- push \
-          gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_SHA1 \
+        command: <
+          gcloud docker -- push
+          gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_SHA1
           gcr.io/$GOOGLE_CLOUD_PROJECT/test:$BRANCH_DOCKER_TAG
 
 # https://circleci.com/docs/2.0/workflows/
