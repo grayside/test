@@ -43,6 +43,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Build Context
+          command: env
+      - run:
           name: Prepare GCP Service Account Credentials
           command: |
             echo ${SERVICE_ACCOUNT_KEY} > ${HOME}/sa-key.json
