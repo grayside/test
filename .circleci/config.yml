@@ -44,14 +44,14 @@ jobs:
           name: Test
           command: go test -v .
     
-    # https://github.com/hadolint/hadolint
-    docker-lint:
-      docker:
-        -image: hadolint/hadolint
-      working_directory: /go/src/github.com/grayside/test
-      steps:
-        - checkout
-        - run: hadolint Dockerfile
+  # https://github.com/hadolint/hadolint
+  docker-lint:
+    docker:
+      - image: hadolint/hadolint
+    working_directory: /go/src/github.com/grayside/test
+    steps:
+      - checkout
+      - run: hadolint Dockerfile
 
   # https://vsupalov.com/build-docker-image-with-circle-ci-2-push-to-google-container-registry/
   build-and-push:
