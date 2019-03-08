@@ -7,8 +7,10 @@
 # - Auto-canceling redundant builds
 #
 # @todo consider adding caching to test process,
-# many go commands retrieve dependencies.
-#
+#       many go commands retrieve dependencies.
+# @todo base64 encode the SERVICE_ACCOUNT_KEY
+#       for some light obfuscation security.
+
 version: 2
 jobs:
   test:
