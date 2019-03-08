@@ -52,9 +52,9 @@ jobs:
         command: |
           export BRANCH_DOCKER_TAG=$(echo $CIRCLE_BRANCH | tr / -)
           docker build \
-            --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_SHA1 \
-            --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$BRANCH_DOCKER_TAG \
-            .
+          --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_SHA1 \
+          --tag gcr.io/$GOOGLE_CLOUD_PROJECT/test:$BRANCH_DOCKER_TAG \
+          .
       - run:
         name: Prepare GCP Service Account Credentials
         command: |
@@ -64,7 +64,8 @@ jobs:
       - run:
         name: Publish Docker Image
         when: on_success
-        command: gcloud docker -- push \
+        command: |
+          gcloud docker -- push \
           gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_SHA1 \
           gcr.io/$GOOGLE_CLOUD_PROJECT/test:$BRANCH_DOCKER_TAG
 
