@@ -31,17 +31,7 @@ jobs:
           command: go fmt .
       - run:
           name: Test
-          command: |
-            go get github.com/jstemmer/go-junit-report
-            trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
-            go test -v . | tee ${TEST_RESULTS}/go-test.out
-      # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-      - store_artifacts:
-          path: ${TEST_RESULTS}
-          destination: raw-test-output
-      # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
-      - store_test_results:
-          path: ${TEST_RESULTS}
+          command: go test -v .
 
   # https://vsupalov.com/build-docker-image-with-circle-ci-2-push-to-google-container-registry/
   build-and-push:
