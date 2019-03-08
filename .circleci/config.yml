@@ -58,8 +58,8 @@ jobs:
       - run:
         name: Prepare GCP Service Account Credentials
         command: >
-          echo ${SERVICE_ACCOUNT_KEY} > ${HOME}/sa-key.json
-          gcloud auth activate-service-account --key-file ${HOME}/sa-key.json
+          echo ${SERVICE_ACCOUNT_KEY} > ${HOME}/sa-key.json;
+          gcloud auth activate-service-account --key-file ${HOME}/sa-key.json;
           gcloud --quiet config set project $GOOGLE_CLOUD_PROJECT
       - run:
         name: Publish Docker Image
