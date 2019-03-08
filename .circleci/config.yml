@@ -52,6 +52,7 @@ jobs:
     working_directory: /go/src/github.com/grayside/test
     steps:
       - checkout
+      - setup_remote_docker
       - run: docker run --rm -i hadolint/hadolint < Dockerfile
 
   # https://vsupalov.com/build-docker-image-with-circle-ci-2-push-to-google-container-registry/
