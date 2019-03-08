@@ -6,6 +6,15 @@
 # - Only building PRs
 # - Auto-canceling redundant builds
 #
+# Settings in GCP
+# - Create service account, get keys
+# - Add Project Viewer, Container Build Editor to Service account
+# - Add the following ACLs
+#   - gsutil iam ch serviceAccount:circleci@PROJECT.iam.gserviceaccount.com:objectViewer gs://PROJECT_cloudbuild
+#   - gsutil iam ch serviceAccount:circleci@PROJECT.iam.gserviceaccount.com:objectCreator gs://PROJECT_cloudbuild
+#   - gsutil iam ch serviceAccount:circleci@PROJECT.iam.gserviceaccount.com:objectCreator gs://artifacts.PROJECT.appspot.com
+#   (GCR bucket has some name variations)
+#
 # @todo consider adding caching to test process,
 #       many go commands retrieve dependencies.
 # @todo base64 encode the SERVICE_ACCOUNT_KEY
@@ -34,6 +43,15 @@ jobs:
       - run:
           name: Test
           command: go test -v .
+    
+    # https://github.com/hadolint/hadolint
+    docker-lint:
+      docker:
+        -image: hadolint/hadolint
+      working_directory: /go/src/github.com/grayside/test
+      steps:
+        - checkout
+        - run: hadolint Dockerfile
 
   # https://vsupalov.com/build-docker-image-with-circle-ci-2-push-to-google-container-registry/
   build-and-push:
@@ -46,6 +64,7 @@ jobs:
 
     environment:
       GO111MODULE: "on"
+      CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
 
     working_directory: /go/src/github.com/grayside/test
     steps:
@@ -81,7 +100,9 @@ workflows:
   test-build-and-push:
     jobs:
       - test
+      - docker-lint
       - build-and-push:
           requires:
             - test
+            - docker-lint
       
