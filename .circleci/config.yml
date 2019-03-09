@@ -98,7 +98,7 @@ jobs:
           when: on_success
           command: |
             gcloud beta container images describe \
-            gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_BRANCH
+            gcr.io/$GOOGLE_CLOUD_PROJECT/test:$CIRCLE_BRANCH --show-build-details
   
   container-analysis:
     docker:
@@ -115,7 +115,7 @@ jobs:
           name: "Container Analysis: Security Vulnerabilities"
           command: |
             gcloud beta container images list-tags --show-occurrences \
-            gcr.io/$GOOGLE_CLOUD_PROJECT}/test
+            gcr.io/$GOOGLE_CLOUD_PROJECT/test
 
 # https://circleci.com/docs/2.0/workflows/
 workflows:
